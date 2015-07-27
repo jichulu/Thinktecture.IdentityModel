@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddedStsSample", "EmbeddedStsSample\EmbeddedStsSample.csproj", "{6CB43772-C1BF-4215-B3F6-CE77B717360F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thinktecture.IdentityModel.EmbeddedSts", "..\..\source\Thinktecture.IdentityModel.EmbeddedSts\Thinktecture.IdentityModel.EmbeddedSts.csproj", "{408440E6-E84F-4ECD-AEBA-F3D963EAC166}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thinktecture.IdentityModel.EmbeddedSts", "..\..\source\EmbeddedSts\EmbeddedSts.csproj", "{408440E6-E84F-4ECD-AEBA-F3D963EAC166}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

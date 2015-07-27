@@ -84,7 +84,9 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
             var appPath = Request.ApplicationPath;
             if (!appPath.EndsWith("/")) appPath += "/";
 
-            signInMsg.Reply = new Uri(Request.Url, appPath).AbsoluteUri;
+            // when the reply querystringparameter has been specified, don't overrule it. 
+            if(String.IsNullOrEmpty(signInMsg.Reply))
+                signInMsg.Reply = new Uri(Request.Url, appPath).AbsoluteUri;
             var response = FederatedPassiveSecurityTokenServiceOperations.ProcessSignInRequest(signInMsg, user, sts);
 
             var body = response.WriteFormPost();
