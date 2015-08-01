@@ -4,10 +4,12 @@
  */
 
 using System;
+using System.IdentityModel.Protocols.WSTrust;
 using System.IdentityModel.Services;
 using System.Linq;
 using System.Security.Claims;
 using System.Web.Mvc;
+using System.Xml.Linq;
 using Thinktecture.IdentityModel.EmbeddedSts.Assets;
 
 namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
@@ -15,9 +17,14 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
     [AllowAnonymous]
     public class EmbeddedStsController : Controller
     {
-        ContentResult Html(string html)
+        private ContentResult Html(string html)
         {
             return Content(html, "text/html");
+        }
+
+        private ContentResult Xml(string xml)
+        {
+            return Content(xml, "application/xml");
         }
 
         public ActionResult Index()
@@ -52,15 +59,15 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
 
             var users = UserManager.GetAllUserNames();
             var options = "";
-            foreach(var user in users)
+            foreach (var user in users)
             {
                 options += String.Format("<option value='{0}'>{0}</option>", user);
             }
             html = html.Replace("{options}", options);
-            
+
             var url = Request.Url.PathAndQuery;
             html = html.Replace("{signInUrl}", url);
-            
+
             return Html(html);
         }
 
@@ -71,7 +78,7 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
 
             var claims = UserManager.GetClaimsForUser(username);
             if (claims == null || !claims.Any()) return null;
-            
+
             var id = new ClaimsIdentity(claims);
             return new ClaimsPrincipal(id);
         }
@@ -85,7 +92,7 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
             if (!appPath.EndsWith("/")) appPath += "/";
 
             // when the reply querystringparameter has been specified, don't overrule it. 
-            if(String.IsNullOrEmpty(signInMsg.Reply))
+            if (String.IsNullOrEmpty(signInMsg.Reply))
                 signInMsg.Reply = new Uri(Request.Url, appPath).AbsoluteUri;
             var response = FederatedPassiveSecurityTokenServiceOperations.ProcessSignInRequest(signInMsg, user, sts);
 
@@ -107,6 +114,14 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
             html = html.Replace("{signOutUrl}", signOutUrl);
 
             return Html(html);
+        }
+        
+        public string WsFederationMetadata()
+        {            
+            var config = new EmbeddedTokenServiceConfiguration();            
+            var uri = new Uri(Request.Url.AbsoluteUri).GetLeftPart(UriPartial.Authority);            
+            var claims = UserManager.GetAllUniqueClaimTypes();
+            return config.GetFederationMetadata(uri, claims).ToString(SaveOptions.DisableFormatting);            
         }
     }
 }

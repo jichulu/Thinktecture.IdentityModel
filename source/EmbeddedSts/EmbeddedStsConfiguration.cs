@@ -88,11 +88,19 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
             var routes = RouteTable.Routes;
 
             routes.MapRoute(
+                "EmbeddedSts-WSFederationMetadata",
+                "FederationMetadata",
+                new { controller = "EmbeddedSts", action = "WsFederationMetadata" },
+                null,
+                new string[] { "Thinktecture.IdentityModel.EmbeddedSts" }
+                );
+
+            routes.MapRoute(
                 "EmbeddedSts-WsFed",
                 EmbeddedStsConstants.WsFedPath,
                 new { controller = "EmbeddedSts", action = "Index" },
                 null,
-                new string[] { "Thinktecture.IdentityModel.EmbeddedSts" });
+                new string[] { "Thinktecture.IdentityModel.EmbeddedSts" });            
         }
     }
 }

@@ -41,6 +41,14 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
             return claims;
         }
 
+        public static IList<string> GetAllUniqueClaimTypes()
+        {
+            var users = GetAllUsers();            
+            var b = users.SelectMany(c => c.Claims).Select(o => o.Type).Distinct().ToList();
+
+            return b;
+        } 
+
         static IEnumerable<User> GetAllUsers()
         {
             var ser = new JavaScriptSerializer();
