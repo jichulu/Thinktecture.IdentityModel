@@ -44,9 +44,9 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
         public static IList<string> GetAllUniqueClaimTypes()
         {
             var users = GetAllUsers();            
-            var b = users.SelectMany(c => c.Claims).Select(o => o.Type).Distinct().ToList();
+            var claims = users.SelectMany(c => c.Claims).Select(o => o.Type).Distinct().ToList();
 
-            return b;
+            return claims;
         } 
 
         static IEnumerable<User> GetAllUsers()

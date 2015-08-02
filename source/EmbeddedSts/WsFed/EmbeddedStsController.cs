@@ -20,7 +20,7 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
         private ContentResult Html(string html)
         {
             return Content(html, "text/html");
-        }       
+        }
 
         public ActionResult Index()
         {
@@ -59,10 +59,10 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
                 options += String.Format("<option value='{0}'>{0}</option>", user);
             }
             html = html.Replace("{options}", options);
-
+            
             var url = Request.Url.PathAndQuery;
             html = html.Replace("{signInUrl}", url);
-
+            
             return Html(html);
         }
 
@@ -73,7 +73,7 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
 
             var claims = UserManager.GetClaimsForUser(username);
             if (claims == null || !claims.Any()) return null;
-
+            
             var id = new ClaimsIdentity(claims);
             return new ClaimsPrincipal(id);
         }

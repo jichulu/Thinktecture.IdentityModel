@@ -100,7 +100,7 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
                 EmbeddedStsConstants.WsFedPath,
                 new { controller = "EmbeddedSts", action = "Index" },
                 null,
-                new string[] { "Thinktecture.IdentityModel.EmbeddedSts" });            
+                new string[] { "Thinktecture.IdentityModel.EmbeddedSts" });
         }
     }
 }
