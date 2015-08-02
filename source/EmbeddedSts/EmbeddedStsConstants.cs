@@ -9,8 +9,7 @@ using Thinktecture.IdentityModel.EmbeddedSts.Assets;
 namespace Thinktecture.IdentityModel.EmbeddedSts
 {
     public class EmbeddedStsConstants
-    {
-        public static string WsFederationMetadata = "/FederationMetadata/2007-06/FederationMetadata.xml";
+    {        
         public const string EmbeddedStsIssuerHost = "EmbeddedSts";
         public const string TokenIssuerName = "urn:Thinktecture:EmbeddedSTS";
 
