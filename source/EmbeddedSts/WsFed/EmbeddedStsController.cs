@@ -20,12 +20,7 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
         private ContentResult Html(string html)
         {
             return Content(html, "text/html");
-        }
-
-        private ContentResult Xml(string xml)
-        {
-            return Content(xml, "application/xml");
-        }
+        }       
 
         public ActionResult Index()
         {
