@@ -8,10 +8,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel;
 using System.IdentityModel.Configuration;
+using System.IdentityModel.Metadata;
 using System.IdentityModel.Protocols.WSTrust;
 using System.IdentityModel.Tokens;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Policy;
+using System.Web.Hosting;
+using System.Xml;
 
 namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
 {
@@ -32,7 +37,34 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
                 TokenEncryptionRequired = false
             };
         }
+        private string FindEndpoint(string entityId)
+        {
+            var dir = HostingEnvironment.MapPath("~/App_Data/sp");
+            if (Directory.Exists(dir))
+            {
+                var files = Directory.GetFiles(dir, "*.xml");
+                if (files.Any())
+                {
+                    foreach (var file in files)
+                    {
+                        using (var fs = File.OpenRead(file))
+                        {
+                            var serializer = new MetadataSerializer();
+                            MetadataBase metadata = serializer.ReadMetadata(fs);
+                            var entityDescriptor = (EntityDescriptor)metadata;
+                            if (entityDescriptor != null)
+                            {
+                                if (entityDescriptor.EntityId.Id == entityId)
+                                {
 
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
         protected override ClaimsIdentity GetOutputClaimsIdentity(ClaimsPrincipal principal, RequestSecurityToken request, Scope scope)
         {
             var id = new ClaimsIdentity(principal.Claims, "EmbeddedSTS");
@@ -42,21 +74,12 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
             id.AddClaim(new Claim(ClaimTypes.AuthenticationInstant, time, ClaimValueTypes.DateTime));
             return id;
         }
-        protected override SecurityTokenDescriptor CreateSecurityTokenDescriptor(RequestSecurityToken request, Scope scope)
-        {
-            var desc = base.CreateSecurityTokenDescriptor(request, scope);
-            return desc;
-        }
-        protected override RequestSecurityTokenResponse GetResponse(RequestSecurityToken request, SecurityTokenDescriptor tokenDescriptor)
-        {
-            return base.GetResponse(request, tokenDescriptor);
-        }
-        public override RequestSecurityTokenResponse Issue(ClaimsPrincipal principal, RequestSecurityToken request)
-        {
-            var securityTokenResponse = base.Issue(principal, request);
-            securityTokenResponse.RequestedAttachedReference = null;
-            securityTokenResponse.RequestedUnattachedReference = null;
-            return securityTokenResponse;
-        }
+        //public override RequestSecurityTokenResponse Issue(ClaimsPrincipal principal, RequestSecurityToken request)
+        //{
+        //    var securityTokenResponse = base.Issue(principal, request);
+        //    securityTokenResponse.RequestedAttachedReference = null;
+        //    securityTokenResponse.RequestedUnattachedReference = null;
+        //    return securityTokenResponse;
+        //}
     }
 }
