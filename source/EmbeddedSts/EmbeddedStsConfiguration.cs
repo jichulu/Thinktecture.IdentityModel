@@ -3,7 +3,6 @@
  * see LICENSE
  */
 
-using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using System;
 using System.IdentityModel.Services;
 using System.IdentityModel.Services.Configuration;
@@ -25,7 +24,7 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
             {
                 ConfigureRoutes();
                 ConfigureWIF();
-                DynamicModuleUtility.RegisterModule(typeof(EmbeddedStsModule));
+                HttpApplication.RegisterModule(typeof(EmbeddedStsModule));
                 UserManager.WriteClaimsFile();
             }
         }
@@ -43,9 +42,9 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
             if (IsEmbeddedSts(e.FederationConfiguration.WsFederationConfiguration.Issuer))
             {
                 var inr = new ConfigurationBasedIssuerNameRegistry();
-                inr.AddTrustedIssuer(EmbeddedStsConstants.SigningCertificate.Thumbprint,
+                inr.AddTrustedIssuer(e.FederationConfiguration.ServiceCertificate.Thumbprint,
                                      EmbeddedStsConstants.TokenIssuerName);
-                
+
                 var config = e.FederationConfiguration;
                 config.IdentityConfiguration.IssuerNameRegistry = inr;
 
@@ -67,10 +66,10 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
 
         private static void ConfigureWIF()
         {
-            var inr = new ConfigurationBasedIssuerNameRegistry();
-            inr.AddTrustedIssuer(EmbeddedStsConstants.SigningCertificate.Thumbprint,
-                                 EmbeddedStsConstants.TokenIssuerName);
             var config = FederatedAuthentication.FederationConfiguration;
+            var inr = new ConfigurationBasedIssuerNameRegistry();
+            inr.AddTrustedIssuer(config.ServiceCertificate.Thumbprint,
+                                 EmbeddedStsConstants.TokenIssuerName);
             config.IdentityConfiguration.IssuerNameRegistry = inr;
 
             var rpRealm = new Uri(config.WsFederationConfiguration.Realm);

@@ -23,12 +23,12 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
 
         internal const string WsFedPath = "_sts";
 
-        public static X509Certificate2 SigningCertificate
-        {
-            get
-            {
-                return new X509Certificate2(AssetManager.LoadBytes(SigningCertificateFile), SigningCertificatePassword);
-            }
-        }
+        //public static X509Certificate2 SigningCertificate
+        //{
+        //    get
+        //    {
+        //        return new X509Certificate2(AssetManager.LoadBytes(SigningCertificateFile), SigningCertificatePassword);
+        //    }
+        //}
     }
 }

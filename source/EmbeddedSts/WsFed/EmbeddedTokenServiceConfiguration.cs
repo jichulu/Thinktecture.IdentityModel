@@ -12,6 +12,7 @@ using System.IdentityModel.Protocols.WSTrust;
 using System.IdentityModel.Tokens;
 using System.Xml;
 using System.Xml.Linq;
+using System.IdentityModel.Services;
 
 namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
 {
@@ -23,16 +24,16 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
         {
             this.SecurityTokenService = typeof(EmbeddedTokenService);
             this.TokenIssuerName = EmbeddedStsConstants.TokenIssuerName;
-            this.SigningCredentials = new X509SigningCredentials(EmbeddedStsConstants.SigningCertificate);
+            this.SigningCredentials = new X509SigningCredentials(FederatedAuthentication.FederationConfiguration.ServiceCertificate);
             this.DefaultTokenLifetime = TimeSpan.FromMinutes(EmbeddedStsConstants.SamlTokenLifetime);
         }
 
         public XElement GetFederationMetadata(string endPoint, IList<string> claims)
-        {                        
+        {
             System.ServiceModel.EndpointAddress item = new System.ServiceModel.EndpointAddress(endPoint + "/_sts/");
             EntityDescriptor entityDescriptor = new EntityDescriptor(new EntityId(this.TokenIssuerName));
             SecurityTokenServiceDescriptor securityTokenServiceDescriptor = new SecurityTokenServiceDescriptor();
-            entityDescriptor.RoleDescriptors.Add(securityTokenServiceDescriptor);            
+            entityDescriptor.RoleDescriptors.Add(securityTokenServiceDescriptor);
             KeyDescriptor keyDescriptor = new KeyDescriptor(this.SigningCredentials.SigningKeyIdentifier);
             keyDescriptor.Use = KeyType.Signing;
             securityTokenServiceDescriptor.Keys.Add(keyDescriptor);
@@ -55,14 +56,14 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
                 memoryStream.Seek(0L, System.IO.SeekOrigin.Begin);
                 XmlReaderSettings settings = new XmlReaderSettings();
                 settings.IgnoreComments = true;
-                settings.IgnoreWhitespace = true;                
+                settings.IgnoreWhitespace = true;
                 XmlReader reader = XmlReader.Create(memoryStream);
                 result = XElement.Load(reader);
             }
-            
+
 
             return result;
         }
-       
+
     }
 }

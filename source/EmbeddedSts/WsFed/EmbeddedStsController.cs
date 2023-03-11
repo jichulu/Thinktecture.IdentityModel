@@ -8,6 +8,7 @@ using System.IdentityModel.Protocols.WSTrust;
 using System.IdentityModel.Services;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Web.Mvc;
 using System.Xml.Linq;
 using Thinktecture.IdentityModel.EmbeddedSts.Assets;
@@ -59,10 +60,10 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
                 options += String.Format("<option value='{0}'>{0}</option>", user);
             }
             html = html.Replace("{options}", options);
-            
+
             var url = Request.Url.PathAndQuery;
             html = html.Replace("{signInUrl}", url);
-            
+
             return Html(html);
         }
 
@@ -73,8 +74,9 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
 
             var claims = UserManager.GetClaimsForUser(username);
             if (claims == null || !claims.Any()) return null;
-            
-            var id = new ClaimsIdentity(claims);
+            //Basic authentication, NTLM, Kerberos, and Passport
+            var id = new ClaimsIdentity(claims, "Basic authentication");
+
             return new ClaimsPrincipal(id);
         }
 
@@ -87,12 +89,31 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
             if (!appPath.EndsWith("/")) appPath += "/";
 
             // when the reply querystringparameter has been specified, don't overrule it. 
-            if (String.IsNullOrEmpty(signInMsg.Reply))
+            if (string.IsNullOrEmpty(signInMsg.Reply))
                 signInMsg.Reply = new Uri(Request.Url, appPath).AbsoluteUri;
-            var response = FederatedPassiveSecurityTokenServiceOperations.ProcessSignInRequest(signInMsg, user, sts);
+            if (!string.IsNullOrEmpty(signInMsg.Realm))
+            {
+                signInMsg.Reply = signInMsg.Realm;
+            }
+            if (!string.IsNullOrEmpty(signInMsg.Reply))
+            {
+                var ub = new UriBuilder(signInMsg.Reply);
+                if (ub.Scheme != Uri.UriSchemeHttps)
+                {
+                    ub.Scheme = Uri.UriSchemeHttps;
+                    ub.Port = 443;
+                }
+                signInMsg.Reply = ub.ToString();
+            }
 
-            var body = response.WriteFormPost();
-            return Html(body);
+
+            FederatedPassiveSecurityTokenServiceOperations.ProcessRequest(System.Web.HttpContext.Current.Request, user, sts, System.Web.HttpContext.Current.Response, new WSFederationSerializer());
+            //var response = FederatedPassiveSecurityTokenServiceOperations.ProcessSignInRequest(signInMsg, user, sts);
+
+            //var body = response.WriteFormPost();
+            //return Html(body);
+
+            return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
         }
 
         private ActionResult ProcessSignOut(SignOutRequestMessage signOutMsg)
@@ -110,13 +131,14 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
 
             return Html(html);
         }
-        
-        public string WsFederationMetadata()
-        {            
-            var config = new EmbeddedTokenServiceConfiguration();            
-            var uri = new Uri(Request.Url.AbsoluteUri).GetLeftPart(UriPartial.Authority);            
+
+        public ActionResult WsFederationMetadata()
+        {
+            var config = new EmbeddedTokenServiceConfiguration();
+            var uri = new Uri(Request.Url.AbsoluteUri).GetLeftPart(UriPartial.Authority);
             var claims = UserManager.GetAllUniqueClaimTypes();
-            return config.GetFederationMetadata(uri, claims).ToString(SaveOptions.DisableFormatting);            
+            var metadataXml = config.GetFederationMetadata(uri, claims).ToString(SaveOptions.DisableFormatting);
+            return Content(metadataXml, "application/xml");
         }
     }
 }

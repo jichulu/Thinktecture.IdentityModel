@@ -43,11 +43,11 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
 
         public static IList<string> GetAllUniqueClaimTypes()
         {
-            var users = GetAllUsers();            
+            var users = GetAllUsers();
             var claims = users.SelectMany(c => c.Claims).Select(o => o.Type).Distinct().ToList();
 
             return claims;
-        } 
+        }
 
         static IEnumerable<User> GetAllUsers()
         {
@@ -96,60 +96,28 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
         {
             return new User[]
             {
-                new User
-                {
-                    Name = "Alice", 
-                    Claims = new UserClaim[]
-                    {
+                BuildUser("jichu@jichu.lu","jichu@jichu.lu")
+            };
+        }
+
+        private static User BuildUser(string name, string upn)
+        {
+            return new User
+            {
+                Name = name,
+                Claims = new UserClaim[]
+                 {
                         new UserClaim
                         {
                             Type = ClaimTypes.NameIdentifier,
-                            Value = "alice"
+                            Value = name
                         },
                         new UserClaim
                         {
-                            Type = ClaimTypes.Name,
-                            Value = "Alice"
-                        },
-                        new UserClaim
-                        {
-                            Type = ClaimTypes.Email,
-                            Value = "alice@alice.com"
-                        },
-                        new UserClaim
-                        {
-                            Type = "http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider", 
-                            Value = "EmbeddedSts"
-                        },
-                    }
-                },
-                new User
-                {
-                    Name = "Bob", 
-                    Claims = new UserClaim[]
-                    {
-                        new UserClaim
-                        {
-                            Type = ClaimTypes.NameIdentifier,
-                            Value = "bob"
-                        },
-                        new UserClaim
-                        {
-                            Type = ClaimTypes.Name,
-                            Value = "Bob"
-                        },
-                        new UserClaim
-                        {
-                            Type = ClaimTypes.Email,
-                            Value = "bob@bob.com"
-                        },
-                        new UserClaim
-                        {
-                            Type = "http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider", 
-                            Value = "EmbeddedSts"
-                        },
-                    }
-                }
+                            Type = ClaimTypes.Upn,
+                            Value = upn
+                        }
+                 }
             };
         }
     }
