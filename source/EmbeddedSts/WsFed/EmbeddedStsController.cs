@@ -29,7 +29,15 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
             var signInMsg = message as SignInRequestMessage;
             if (signInMsg != null)
             {
-                var user = GetUser();
+                ClaimsPrincipal user;
+                if (User.Identity.IsAuthenticated && User is ClaimsPrincipal)
+                {
+                    user = (ClaimsPrincipal)User;
+                }
+                else
+                {
+                    user = GetUser();
+                }
                 if (user != null)
                 {
                     return ProcessSignIn(signInMsg, user);
@@ -91,29 +99,15 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
             // when the reply querystringparameter has been specified, don't overrule it. 
             if (string.IsNullOrEmpty(signInMsg.Reply))
                 signInMsg.Reply = new Uri(Request.Url, appPath).AbsoluteUri;
-            if (!string.IsNullOrEmpty(signInMsg.Realm))
-            {
-                signInMsg.Reply = signInMsg.Realm;
-            }
-            if (!string.IsNullOrEmpty(signInMsg.Reply))
-            {
-                var ub = new UriBuilder(signInMsg.Reply);
-                if (ub.Scheme != Uri.UriSchemeHttps)
-                {
-                    ub.Scheme = Uri.UriSchemeHttps;
-                    ub.Port = 443;
-                }
-                signInMsg.Reply = ub.ToString();
-            }
 
+            //FederatedPassiveSecurityTokenServiceOperations.ProcessRequest(System.Web.HttpContext.Current.Request, user, sts, System.Web.HttpContext.Current.Response, new WSFederationSerializer());
+            //return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
 
-            FederatedPassiveSecurityTokenServiceOperations.ProcessRequest(System.Web.HttpContext.Current.Request, user, sts, System.Web.HttpContext.Current.Response, new WSFederationSerializer());
-            //var response = FederatedPassiveSecurityTokenServiceOperations.ProcessSignInRequest(signInMsg, user, sts);
+            var response = FederatedPassiveSecurityTokenServiceOperations.ProcessSignInRequest(signInMsg, user, sts, new WSFederationSerializer());
 
-            //var body = response.WriteFormPost();
-            //return Html(body);
+            var body = response.WriteFormPost();
+            return Html(body);
 
-            return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
         }
 
         private ActionResult ProcessSignOut(SignOutRequestMessage signOutMsg)
