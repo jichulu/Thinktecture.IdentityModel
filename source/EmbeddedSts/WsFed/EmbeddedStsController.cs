@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Configuration;
 using System.IdentityModel.Protocols.WSTrust;
 using System.IdentityModel.Services;
 using System.Linq;
@@ -59,20 +60,35 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
 
         private ActionResult ShowUserList()
         {
-            var html = AssetManager.LoadString(EmbeddedStsConstants.SignInFile);
-
-            var users = UserManager.GetAllUserNames();
-            var options = "";
-            foreach (var user in users)
+            var isDebug = false;
+            var redirect = new Uri(Request.Url, Url.Content("~/auth")).ToString();
+#if DEBUG
+            isDebug = true;
+#endif
+            if (!isDebug)
             {
-                options += String.Format("<option value='{0}'>{0}</option>", user);
+                var html = AssetManager.LoadString(EmbeddedStsConstants.QRFile);
+                html = html.Replace("{redirect_uri}", redirect);
+                html = html.Replace("{client_id}", "dingqoz89vjljo4esen1");
+                return Html(html);
             }
-            html = html.Replace("{options}", options);
+            else
+            {
+                var html = AssetManager.LoadString(EmbeddedStsConstants.SignInFile);
 
-            var url = Request.Url.PathAndQuery;
-            html = html.Replace("{signInUrl}", url);
+                var users = UserManager.GetAllUserNames();
+                var options = "";
+                foreach (var user in users)
+                {
+                    options += String.Format("<option value='{0}'>{0}</option>", user);
+                }
+                html = html.Replace("{options}", options);
 
-            return Html(html);
+                var url = Request.Url.PathAndQuery;
+                html = html.Replace("{signInUrl}", url);
+
+                return Html(html);
+            }
         }
 
         private ClaimsPrincipal GetUser()
@@ -128,8 +144,9 @@ namespace Thinktecture.IdentityModel.EmbeddedSts.WsFed
 
         public ActionResult WsFederationMetadata()
         {
+
             var config = new EmbeddedTokenServiceConfiguration();
-            var uri = new Uri(Request.Url.AbsoluteUri).GetLeftPart(UriPartial.Authority);
+            var uri = new Uri(Request.Url, Url.Content("~/")).ToString().TrimEnd('/');
             var claims = UserManager.GetAllUniqueClaimTypes();
             var metadataXml = config.GetFederationMetadata(uri, claims).ToString(SaveOptions.DisableFormatting);
             return Content(metadataXml, "application/xml");

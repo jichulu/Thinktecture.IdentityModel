@@ -18,6 +18,7 @@ namespace Thinktecture.IdentityModel.EmbeddedSts
         internal const string SigningCertificateFile = "EmbeddedSigningCert.pfx";
         internal const string SigningCertificatePassword = "password";
 
+        internal const string QRFile = "QR.html";
         internal const string SignInFile = "SignIn.html";
         internal const string SignOutFile = "SignOut.html";
 
